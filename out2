@@ -1,0 +1,10 @@
+total 68
+-rw-r--r-- 1 jerew jerew    35 Jul 31 13:58 batchcommands
+-rwx------ 1 jerew jerew    75 Jul 31 17:52 out1
+-rwx------ 1 jerew jerew     0 Jul 31 17:52 out2
+-rwx------ 1 jerew jerew   382 Jul 31 17:47 output.txt
+-rwxr-xr-x 1 jerew jerew 17152 Jul 31 17:52 wish
+-rw-r--r-- 1 jerew jerew  2375 Jul 31 13:45 wish v1.c
+-rw-r--r-- 1 jerew jerew  3319 Jul 31 15:33 wish v2.c
+-rw-r--r-- 1 jerew jerew  6375 Jul 31 17:52 wish.c
+-rwxr-xr-x 1 jerew jerew 16880 Jul 31 15:33 wish_v2

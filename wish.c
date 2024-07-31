@@ -49,6 +49,7 @@ int createPaths(char *directories[], char *args[]) {
     directories[i] = NULL;
     return 0;
 }
+
 /*
     Function that executes the given param as a command.
 
@@ -61,10 +62,8 @@ void executeCommand(char *command, char *directories[]) {
 
     int isRedirection = 0;
     char *redirect_file = NULL;
-
-    // int isParallel = 0; 
     // printf("executing the command '%s'..\n", command); //DEBUG
-    
+
     // check of redirection 
     if (strtok(command, ">") != NULL) {
         
@@ -162,6 +161,30 @@ void executeCommand(char *command, char *directories[]) {
     }
 }
 
+void executeParallel(char *line, char *directories[]) {
+    char *command = strtok(line, "&");
+    pid_t pids[MAX_ARGS];
+    int i = 0;
+
+    while (command != NULL) {
+        if ((pids[i] = fork()) == 0) {
+            // exec child process
+            executeCommand(command, directories);
+            exit(0);
+        } else if (pids[i] < 0) {
+            // Fork failed
+            perror("wish");
+            exit(EXIT_FAILURE);
+        }
+        command = strtok(NULL, "&");
+        i++;
+    }
+
+    for (int j = 0; j < i; j++) {
+        waitpid(pids[j], NULL, 0);
+    }
+}
+
 /*
     Function made to go trough a file and excecute every row as a command
 
@@ -213,8 +236,11 @@ int main(int argc, char *argv[]) {
             printf("%c",'\n');
             break; // EOF or read error
         }
-
-        executeCommand(line, directories);
+        if (strchr(line, '&') != NULL) {
+            executeParallel(line, directories);
+        } else {
+            executeCommand(line, directories);
+        }
     }
 
     return 0;
