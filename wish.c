@@ -36,22 +36,22 @@ int takeInput(char* line)
     }
 }
 
-/*
-    Function that executes the given param as a command.
 
-    TODO: explain more and define errors
-*/
 int createPaths(char *directories[], char *args[]) {
     int i = 0;
     while (args[i+1] != NULL) {
         directories[i] = args[i+1];
-        printf("dir: '%s'\n", directories[i]);
+        // printf("dir: '%s'\n", directories[i]); 
         i++;
     }
     directories[i] = NULL;
     return 0;
 }
+/*
+    Function that executes the given param as a command.
 
+    TODO: explain more and define errors
+*/
 void executeCommand(char *command, char *directories[]) {
     char *args[MAX_ARGS];
     char path[MAX_LINE];
@@ -83,7 +83,11 @@ void executeCommand(char *command, char *directories[]) {
         // chdir error
         return;
     } else if (strcmp(args[0], "path") == 0) {
-        
+        // check if no arguments
+        if (args[1] == NULL) {
+            fprintf(stderr, "not enough arguments.\n");
+            return;
+        }
         if (createPaths(directories, args) != 0 ) {
             fprintf(stderr, "Error creating new directories.\n");
         }
