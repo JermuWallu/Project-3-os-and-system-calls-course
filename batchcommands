@@ -1,0 +1,3 @@
+ls -ls
+echo "cool this works!"
+exit
