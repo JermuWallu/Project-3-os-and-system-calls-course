@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 
 #define MAX_LINE 1024
 #define MAX_ARGS 64
@@ -56,7 +58,29 @@ void executeCommand(char *command, char *directories[]) {
     char *args[MAX_ARGS];
     char path[MAX_LINE];
     int i = 0;
+
+    int isRedirection = 0;
+    char *redirect_file = NULL;
+
+    // int isParallel = 0; 
     // printf("executing the command '%s'..\n", command); //DEBUG
+    
+    // check of redirection 
+    if (strtok(command, ">") != NULL) {
+        
+        redirect_file = strtok(NULL, ">");
+        if (redirect_file != NULL) {
+            isRedirection = 1;
+            redirect_file = strtok(redirect_file, " \t\n");
+            
+            if (strtok(NULL, " \t\n") != NULL) {
+                fprintf(stderr, "wish: syntax error: multiple redirection operators or files\n");
+                return;
+            }
+
+
+        }
+    }
 
     // Tokenize the input command
     // didn't know how to use strtok_r() and this was easer to understa for me.
@@ -108,6 +132,18 @@ void executeCommand(char *command, char *directories[]) {
     if (pid == -1) {
         fprintf(stderr, "Failed forking child..\n");
     } else if (pid == 0) {
+        // redirect
+        if (isRedirection) {
+            int feed = open(redirect_file, O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU);
+            if (feed < 0) {
+                fprintf(stderr, "Unable to open file.\n");
+            }
+            dup2(feed, STDOUT_FILENO);
+            dup2(feed, STDERR_FILENO);
+            close(feed);
+        }
+
+
         // loop trough directories
         for (i = 0; directories[i] != NULL; i++) {
             snprintf(path, sizeof(path), "%s/%s", directories[i], args[0]);
@@ -118,6 +154,10 @@ void executeCommand(char *command, char *directories[]) {
     } else {
         // waiting for child to terminate
         waitpid(pid, NULL, 0);
+
+        // if (file) {
+        //     fclose(file);
+        // }
         return;
     }
 }
