@@ -78,16 +78,20 @@ void executeCommand(char *command, char *directories[]) {
         printf("exit command found, exiting wish..\n");
         exit(0);
     } else if (strcmp(args[0], "cd") == 0) {
-        printf("%s\n","'cd' functionality here.");
-        // check arg amount
-        // chdir error
-        return;
-    } else if (strcmp(args[0], "path") == 0) {
-        // check if no arguments
-        if (args[1] == NULL) {
-            fprintf(stderr, "not enough arguments.\n");
+        // argument error handling
+        if (args[1] == NULL || args[2] != NULL) {
+            fprintf(stderr, "invalid number of arguments.\n");
             return;
         }
+
+        if (chdir(args[1]) != 0) {
+            fprintf(stderr, "Error while changing directories.\n");
+            return;
+        }
+
+        return;
+    } else if (strcmp(args[0], "path") == 0) {
+        
         if (createPaths(directories, args) != 0 ) {
             fprintf(stderr, "Error creating new directories.\n");
         }
