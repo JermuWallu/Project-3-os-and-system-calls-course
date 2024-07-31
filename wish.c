@@ -41,6 +41,17 @@ int takeInput(char* line)
 
     TODO: explain more and define errors
 */
+int createPaths(char *directories[], char *args[]) {
+    int i = 0;
+    while (args[i+1] != NULL) {
+        directories[i] = args[i+1];
+        printf("dir: '%s'\n", directories[i]);
+        i++;
+    }
+    directories[i] = NULL;
+    return 0;
+}
+
 void executeCommand(char *command, char *directories[]) {
     char *args[MAX_ARGS];
     char path[MAX_LINE];
@@ -70,17 +81,18 @@ void executeCommand(char *command, char *directories[]) {
         printf("%s\n","'cd' functionality here.");
         // check arg amount
         // chdir error
-        exit(0);
+        return;
     } else if (strcmp(args[0], "path") == 0) {
-        printf("%s\n","'path' functionality here.");
-        // create search path
-        // make the args change overwrite the old path
-        exit(0);
+        
+        if (createPaths(directories, args) != 0 ) {
+            fprintf(stderr, "Error creating new directories.\n");
+        }
+        return;
     }
     
     // creating path
-    strcpy(path, "/bin/");
-    strcat(path, args[0]);
+    // strcpy(path, "/bin/");
+    // strcat(path, args[0]);
 
     // Forking a child
     pid_t pid = fork();
@@ -88,18 +100,13 @@ void executeCommand(char *command, char *directories[]) {
     if (pid == -1) {
         fprintf(stderr, "Failed forking child..\n");
     } else if (pid == 0) {
-        if (execv(path, args) == -1) {
-            // change path
-            strcpy(path, "/usr/bin/");
-            strcat(path, args[0]);
-
-            if (execv(path, args) == -1) {
-                fprintf(stderr, "could not execute the command..\n");
-                exit(1);
-            }
+        // loop trough directories
+        for (i = 0; directories[i] != NULL; i++) {
+            snprintf(path, sizeof(path), "%s/%s", directories[i], args[0]);
+            execv(path, args);
         }
-
-        exit(0);
+        fprintf(stderr, "execv failed to run the program.\n");
+        exit(1);
     } else {
         // waiting for child to terminate
         waitpid(pid, NULL, 0);
@@ -141,7 +148,7 @@ void batchMode(char name[], char *directories[]) {
 
 int main(int argc, char *argv[]) {
     char line[MAX_LINE];
-    char *directories[] = {"/bin", "/usr/bin", NULL};
+    char *directories[999] = {"/bin", "/usr/bin", NULL};
     // too many arg error 
     if (argc > 2) {
         fprintf(stderr, "Too many arguments, exiting..\n");
