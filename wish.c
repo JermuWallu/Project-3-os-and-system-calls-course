@@ -130,6 +130,7 @@ void executeCommand(char *command, char *directories[]) {
 
     if (pid == -1) {
         fprintf(stderr, "Failed forking child..\n");
+        return;
     } else if (pid == 0) {
         // redirect
         if (isRedirection) {
@@ -173,8 +174,8 @@ void executeParallel(char *line, char *directories[]) {
             exit(0);
         } else if (pids[i] < 0) {
             // Fork failed
-            perror("wish");
-            exit(EXIT_FAILURE);
+            fprintf(stderr, "Failed forking child..\n");
+            return;
         }
         command = strtok(NULL, "&");
         i++;
